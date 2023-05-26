@@ -14,8 +14,10 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false \
     && poetry install --no-root
 
-# openai moduleを明示的にインストール
+# openai moduleを明示的にインストールp
 RUN poetry add openai
+
+RUN pip install line-bot-sdk
 
 # uvicornのサーバーを立ち上げる
 CMD ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload"]

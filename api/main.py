@@ -1,16 +1,21 @@
 from fastapi import FastAPI, HTTPException
 import openai
 from pydantic import BaseModel
+from .line_routes import line_router
 import json
+from .state import User, users
 
+
+
+app = FastAPI()
+
+app.include_router(line_router)
 # JSONファイルを開き、値を読み込む
-with open('config.json') as f:
+with open('/src/config.json') as f:
     data = json.load(f)
 
 # JSONからAPIキーを取得
 openai.api_key = data['OPENAI_API_KEY']
-
-app = FastAPI()
 
 
 class User(BaseModel):
@@ -24,7 +29,7 @@ class Message(BaseModel):
     content: str
 
 # Store for users
-users = {'default': User(id='default', name='Default User', messages=[])}
+# users = {'default': User(id='default', name='Default User', messages=[])}
 
 @app.post("/users/")
 def create_user(user: User):
