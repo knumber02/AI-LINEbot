@@ -3,9 +3,10 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import json
-from .state import User, users
+from .state import User ,Character
 from openai.error import OpenAIError
 import openai
+import random
 
 
 line_router = APIRouter()
@@ -30,26 +31,44 @@ async def webhook(request: Request):
 
     return 'OK'
 
+users = {}
+characters = {}
+# AIのキャラクターを初期化
+characters["default"] = Character(id="default", name="ミサキ", age=20, tone="エロゲ風のテンポの良い喋り方で、時折可愛らしい喘ぎ声が入る。よく笑いながら相手をからかうことがある。", ending="普段は「～ねぇ」「～よ」などの丁寧な言葉遣いだが、ツンデレキャラとしては相手に対して口調が荒くなることがある。また、「バカ」「アホ」といった罵倒語を使うことが多い。", voice="高めで甘く、かわいらしい声が特徴的。ただし、怒ったり攻撃的になった場合には声が大きくなることがある。", language="常にため口で相手を罵倒するような言葉遣いをすることがある。また、甘えたい時には「あたし」という一人称を使うことがある。", personality="ツンデレであり、口では非常に冷たく、相手をあしらうことが多い。自分のことを誇り高く思っており、強気な態度をとることが多い。ただし、内心では相手に対して甘えたいと思っている。")
+
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("Message received")
     user_id = event.source.user_id
     text = event.message.text
 
+    character = characters["default"] # Default character
+
     if user_id not in users:
-        users[user_id] = User(id=user_id, name=user_id, personality="You are a friendly, caring, and cheerful real girlfriend.", messages=[])
+        users[user_id] = User(id=user_id , name=None)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="なによ、あんた？こっち見て、、名前ぐらい名乗りなさいよ！")
+        )
+        return 'OK'
 
     user = users[user_id]
 
-    if text == "性格チェンジ！":
-        user.personality = "You are a friendly, caring, and cheerful real girlfriend."
+    if user.name is None:
+        user.name = text
+        greeting_message = f"{user.name}っていうのね、、ってバカ！いったい何のよう？"
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="Personality updated!")
+            TextSendMessage(text=greeting_message)
         )
-        return
+        return 'OK'
 
-    user.messages.append({"role": "user", "content": text})
+    # Pre-processing: Add user's name to the input text
+    text_with_name = f"{user.name}さん、{text}"
+
+    user.messages.append({"role": "user", "content": text_with_name})
+
     chat_model = "gpt-3.5-turbo"
 
     print(f'Received message from user {user_id}: {text}') # Log message received from user
@@ -57,7 +76,8 @@ def handle_message(event):
     # Limit the conversation history to the latest 10 messages to avoid reaching the token limit.
     conversation_history = user.messages[-10:]
 
-    conversation_history.insert(0, {"role": "system", "content": user.personality})
+    conversation_history.insert(0, {"role": "system", "content": f"your role is to embody the following character: Age: {character.age}\nName: {character.name}\nTone: {character.tone}\nEnding: {character.ending}\nVoice: {character.voice}\nLanguage: {character.language}\nPersonality: {character.personality}"})
+
 
     try:
         response = openai.ChatCompletion.create(
@@ -72,12 +92,13 @@ def handle_message(event):
         if any(word in response_content for word in inappropriate_words):
             response_content = "I'm sorry, but I can't assist with that."
 
-        # Post-processing: Add more "girlfriend-like" phrases.
-        response_content = f"あなたの彼女からのメッセージ: {response_content} ❤️"
+        # Post-processing: Add more "girlfriend-like" phrases with random emoji
+        emoji = random.choice(['❤️', '...', '♪'])
+        response_content = f"{response_content} {emoji}"
 
     except OpenAIError as e:
         # Custom error message
-        response_content = f"ごめんなさい、今ちょっと眠いの... もう少し待っててね。"
+        response_content = f"ごめんなさい、今ちょっと眠いの... もう少し待っててくれる？"
         print(f'Error occurred: {str(e)}')  # Log error if any occurs
 
     user.messages.append({"role": "assistant", "content": response_content})
