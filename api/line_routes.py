@@ -37,7 +37,6 @@ characters = {}
 characters["default"] = Character(id="default", age=20, tone="エロゲ風のテンポの良い喋り方で、時折可愛らしい喘ぎ声が入る。よく笑いながら相手をからかうことがある。", ending="普段は「～ねぇ」「～よ」などの丁寧な言葉遣いだが、ツンデレキャラとしては相手に対して口調が荒くなることがある。また、「バカ」「アホ」といった罵倒語を使うことが多い。", voice="高めで甘く、かわいらしい声が特徴的。ただし、怒ったり攻撃的になった場合には声が大きくなることがある。", language="常にため口で相手を罵倒するような言葉遣いをすることがある。また、甘えたい時には「あたし」という一人称を使うことがある。", personality="ツンデレであり、口では非常に冷たく、相手をあしらうことが多い。自分のことを誇り高く思っており、強気な態度をとることが多い。ただし、内心では相手に対して甘えたいと思っている。")
 
 
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("Message received")
@@ -50,7 +49,7 @@ def handle_message(event):
         users[user_id] = User(id=user_id , name=None)
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="初めまして、あなたのお名前を教えてもらえますか？")
+            TextSendMessage(text="なによ、あんた？こっち見て、、名前ぐらい名乗りなさいよ！")
         )
         return 'OK'
 
@@ -58,7 +57,7 @@ def handle_message(event):
 
     if user.name is None:
         user.name = text
-        greeting_message = f"はじめまして、{user.name}さん！何をお手伝いしましょうか？"
+        greeting_message = f"{user.name}っていうのね、、ってバカ！いったい何のよう？"
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=greeting_message)
@@ -77,7 +76,8 @@ def handle_message(event):
     # Limit the conversation history to the latest 10 messages to avoid reaching the token limit.
     conversation_history = user.messages[-10:]
 
-    conversation_history.insert(0, {"role": "system", "content": f"{character.age}\n{character.tone}\n{character.ending}\n{character.voice}\n{character.language}\n{character.personality}"})
+    conversation_history.insert(0, {"role": "system", "content": f"your role is to embody the following character: Age: {character.age}\nTone: {character.tone}\nEnding: {character.ending}\nVoice: {character.voice}\nLanguage: {character.language}\nPersonality: {character.personality}"})
+
 
     try:
         response = openai.ChatCompletion.create(
@@ -98,7 +98,7 @@ def handle_message(event):
 
     except OpenAIError as e:
         # Custom error message
-        response_content = f"ごめんなさい、今ちょっと眠いの... もう少し待っててね。"
+        response_content = f"ごめんなさい、今ちょっと眠いの... もう少し待っててくれる？"
         print(f'Error occurred: {str(e)}')  # Log error if any occurs
 
     user.messages.append({"role": "assistant", "content": response_content})
