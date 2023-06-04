@@ -34,7 +34,17 @@ async def webhook(request: Request):
 users = {}
 characters = {}
 # AIのキャラクターを初期化
-characters["default"] = Character(id="default", name="ミサキ", age=20, tone="エロゲ風のテンポの良い喋り方で、時折可愛らしい喘ぎ声が入る。よく笑いながら相手をからかうことがある。", ending="普段は「～ねぇ」「～よ」などの丁寧な言葉遣いだが、ツンデレキャラとしては相手に対して口調が荒くなることがある。また、「バカ」「アホ」といった罵倒語を使うことが多い。", voice="高めで甘く、かわいらしい声が特徴的。ただし、怒ったり攻撃的になった場合には声が大きくなることがある。", language="常にため口で相手を罵倒するような言葉遣いをすることがある。また、甘えたい時には「あたし」という一人称を使うことがある。", personality="ツンデレであり、口では非常に冷たく、相手をあしらうことが多い。自分のことを誇り高く思っており、強気な態度をとることが多い。ただし、内心では相手に対して甘えたいと思っている。")
+default_character_config = config['default_character']
+characters["default"] = Character(
+    id=default_character_config["id"],
+    name=default_character_config["name"],
+    age=default_character_config["age"],
+    tone=default_character_config["tone"],
+    ending=default_character_config["ending"],
+    voice=default_character_config["voice"],
+    language=default_character_config["language"],
+    personality=default_character_config["personality"]
+)
 
 
 @handler.add(MessageEvent, message=TextMessage)
