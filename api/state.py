@@ -9,8 +9,9 @@ class User:
 
 
 class Character:
-    def __init__(self, id, age, tone, ending, voice, language, personality):
+    def __init__(self, id, name, age, tone, ending, voice, language, personality):
         self.id = id
+        self.name = name
         self.age = age
         self.tone = tone
         self.ending = ending
