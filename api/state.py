@@ -1,24 +1,11 @@
-from typing import Dict, List, Optional
-from pydantic import BaseModel
+from typing import Dict
+from api.models.user import User
+from api.models.character import Character
 
-class User:
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
-        self.messages = []
+# グローバルな状態管理
+users: Dict[str, User] = {}
+characters: Dict[str, Character] = {}
 
-
-class Character:
-    def __init__(self, id, name, age, tone, ending, voice, language, personality):
-        self.id = id
-        self.name = name
-        self.age = age
-        self.tone = tone
-        self.ending = ending
-        self.voice = voice
-        self.language = language
-        self.personality = personality
-        self.messages = []
-
-
-users: Dict[str, User] = {'default': User(id='default', name='Default User')}
+# デフォルトユーザーの初期化
+default_user = User(id='default', name='Default User')
+users['default'] = default_user
