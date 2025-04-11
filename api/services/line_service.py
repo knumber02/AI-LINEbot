@@ -4,11 +4,13 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from api.models.user import User
 from api.models.message import Message
 from api.state import users
+import json
 
 class LineService:
-    def __init__(self, line_bot_api: LineBotApi, handler: WebhookHandler):
-        self.line_bot_api = line_bot_api
-        self.handler = handler
+    def __init__(self):
+        with open('/src/config.json') as f:
+            config = json.load(f)
+        self.line_bot_api = LineBotApi(config["LINE_CHANNEL_ACCESS_TOKEN"])
 
     def reply_message(self, event: MessageEvent):
         user_id = event.source.user_id

@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException
 from typing import Annotated
-from linebot import LineBotApi, WebhookHandler
+from linebot import WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage
 from api.services.line_service import LineService
@@ -18,8 +18,7 @@ class LineHandler:
     ):
         with open('/src/config.json') as f:
             config = json.load(f)
-        
-        self.line_bot_api = LineBotApi(config["LINE_CHANNEL_ACCESS_TOKEN"])
+
         self.handler = WebhookHandler(config["LINE_CHANNEL_SECRET"])
         self.line_service = line_service
         self.user_service = user_service
