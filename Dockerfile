@@ -7,17 +7,11 @@ WORKDIR /src
 # pipを使ってpoetryをインストール
 RUN pip install poetry
 
-# poetryの定義ファイルをコピー
-COPY pyproject.toml poetry.lock ./
+# プロジェクトファイル全体をコピー
+COPY . .
 
 # poetryでライブラリをインストール
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-root
-
-# openai moduleを明示的にインストールp
-RUN poetry add openai
-
-RUN pip install line-bot-sdk
+RUN poetry install --no-root
 
 # uvicornのサーバーを立ち上げる
 CMD ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload"]
