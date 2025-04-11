@@ -28,6 +28,6 @@ class UserService:
 
     def update_user_personality(self, user_id: str, personality: str) -> User:
         """ユーザーの性格設定を更新します"""
-        user = self.get_user(user_id)  # 存在チェック
+        user = self.get_user(user_id)
         user.personality = personality
         return user
