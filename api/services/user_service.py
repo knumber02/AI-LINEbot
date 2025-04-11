@@ -1,5 +1,8 @@
+from fastapi import HTTPException
 from api.models.user import User
+from api.requests.user import UserCreateRequest
 from api.state import users
+from typing import Optional
 
 class UserService:
     def get_or_create_user(self, user_id: str) -> User:
@@ -9,26 +12,22 @@ class UserService:
         return users[user_id]
 
     def get_user(self, user_id: str) -> User:
-        if user_id not in users:
-            raise ValueError("User not found")
-        return users[user_id]
+        """ユーザーを取得します"""
+        user = users.get(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user
 
     def create_user(self, user: User) -> User:
+        """ユーザーを作成します"""
         if user.id in users:
             return users[user.id]
 
-        user = User(
-            id=user.id,
-            name=user.name,
-            personality=user.personality or "You are an assistant that speaks like a cute girlfriend."
-        )
         users[user.id] = user
         return user
 
     def update_user_personality(self, user_id: str, personality: str) -> User:
-        if user_id not in users:
-            raise ValueError("User not found")
-
-        user = users[user_id]
+        """ユーザーの性格設定を更新します"""
+        user = self.get_user(user_id)  # 存在チェック
         user.personality = personality
         return user
