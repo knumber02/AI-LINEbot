@@ -4,10 +4,14 @@ from api.models.user import User
 from api.state import users
 from api.services.chat_service import ChatService
 import os
+import json
+
+with open('/src/config.json') as f:
+    config = json.load(f)
 
 class MessageHandler:
     def __init__(self):
-        self.chat_service = ChatService(api_key=os.getenv("OPENAI_API_KEY"))
+        self.chat_service = ChatService(api_key=config["OPENAI_API_KEY"])
 
     def handle_create_message(self, message: Message) -> str:
         """メッセージ作成のハンドラ"""
