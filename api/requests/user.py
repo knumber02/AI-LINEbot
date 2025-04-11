@@ -5,7 +5,7 @@ class UserBase(BaseModel):
     """
     ユーザーの基本情報を表すモデルです
     """
-    name: Optional[str] = Field(
+    name: str = Field(
         default=None,
         description="ユーザーの名前"
     )
