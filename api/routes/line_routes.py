@@ -4,11 +4,15 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from api.services.line_service import LineService
 import os
+import json
 
 router = APIRouter()
 
-line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
-handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
+with open('/src/config.json') as f:
+    config = json.load(f)
+
+line_bot_api = LineBotApi(config["LINE_CHANNEL_ACCESS_TOKEN"])
+handler = WebhookHandler(config["LINE_CHANNEL_SECRET"])
 line_service = LineService(line_bot_api, handler)
 
 @router.post("/webhook")
