@@ -2,6 +2,12 @@ from api.models.user import User
 from api.state import users
 
 class UserService:
+    def get_or_create_user(self, user_id: str) -> User:
+        """ユーザーを取得または作成"""
+        if user_id not in users:
+            users[user_id] = User(id=user_id, name=None)
+        return users[user_id]
+
     def get_user(self, user_id: str) -> User:
         if user_id not in users:
             raise ValueError("User not found")
