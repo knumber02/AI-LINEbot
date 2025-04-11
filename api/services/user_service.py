@@ -13,16 +13,16 @@ class UserService:
             raise ValueError("User not found")
         return users[user_id]
 
-    def create_user(self, user_id: str, name: str, personality: str = "You are an assistant that speaks like a cute girlfriend.") -> User:
-        if user_id in users:
-            return users[user_id]
+    def create_user(self, user: User) -> User:
+        if user.id in users:
+            return users[user.id]
 
         user = User(
-            id=user_id,
-            name=name,
-            personality=personality or "You are an assistant that speaks like a cute girlfriend."
+            id=user.id,
+            name=user.name,
+            personality=user.personality or "You are an assistant that speaks like a cute girlfriend."
         )
-        users[user_id] = user
+        users[user.id] = user
         return user
 
     def update_user_personality(self, user_id: str, personality: str) -> User:
