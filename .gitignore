@@ -6,3 +6,6 @@ api/services/__pycache__
 api/state/__pycache__
 api/models/__pycache__
 api/routes/__pycache__
+api/responses/__pycache__
+api/requests/__pycache__
+api/handlers/__pycache__
