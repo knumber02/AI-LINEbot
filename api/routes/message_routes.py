@@ -5,10 +5,10 @@ from typing import Annotated
 
 router = APIRouter()
 
-@router.post("/messages/")
+@router.post("/")
 def create_message(message: Message, message_handler: Annotated[MessageHandler, Depends(MessageHandler)]):
     return message_handler.handle_create_message(message)
 
-@router.get("/messages/{user_id}")
+@router.get("/{user_id}")
 def read_messages(user_id: str, message_handler: Annotated[MessageHandler, Depends(MessageHandler)]):
     return message_handler.handle_get_messages(user_id)
