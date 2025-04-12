@@ -6,7 +6,6 @@ import json
 import openai
 from pydantic import BaseModel
 from api.state import User, users
-from middleware import create_middleware
 
 app = FastAPI()
 
