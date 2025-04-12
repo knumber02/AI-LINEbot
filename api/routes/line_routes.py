@@ -10,16 +10,6 @@ import json
 
 router = APIRouter()
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-# # 標準出力へのハンドラーを追加（もし既存のハンドラーがない場合）
-# if not logger.handlers:
-#     handler = logging.StreamHandler()
-#     handler.setLevel(logging.DEBUG)
-#     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-#     handler.setFormatter(formatter)
-#     logger.addHandler(handler)
 
 with open('/src/config.json') as f:
     config = json.load(f)
