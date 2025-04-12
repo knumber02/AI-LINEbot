@@ -19,8 +19,5 @@ app.include_router(message_router, prefix="/messages", tags=["messages"])
 with open('/src/config.json') as f:
     data = json.load(f)
 
-# ミドルウェアの設定
-app.middleware("http")(create_middleware())
-
 # OpenAI APIキーの設定
 openai.api_key = data['OPENAI_API_KEY']
