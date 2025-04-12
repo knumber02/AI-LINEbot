@@ -1,9 +1,9 @@
 # AI Character LINE Bot
 
-![LINE Bot Demo](./docs/images/demo.png)
+デモ動画：https://youtube.com/shorts/IX3m62dwLvE?feature=share
 
 ## 概要 (Overview)
-このプロジェクトは、LINEプラットフォーム上で動作する対話型AIボットです。ユーザーは特定のキャラクターに扮したAIとチャットを楽しむことができます。
+このプロジェクトは、LINEプラットフォーム上で動作する対話型AIボットです。ユーザーは、キャラクターになりきったAIと雑談を通じて、ちょっとした癒しや楽しみを得ることができます。
 
 ### 主な機能 (Key Features)
 - 🎭 キャラクターロールプレイ: AIが特定のキャラクターとして応答
