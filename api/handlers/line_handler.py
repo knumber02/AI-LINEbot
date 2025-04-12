@@ -55,11 +55,16 @@ class LineHandler:
 
     def _handle_new_user(self, event: MessageEvent, user: User, text: str):
         """新規ユーザーの処理"""
-        if user.name is None:
-            # 最初のメッセージ（名前を尋ねる）
+        # 最初のメッセージ（名前を尋ねる）
+        if user.name is None and user.greeted == False:
+            user.greeted = True  # 挨拶済みフラグを設定
+            self.user_service.update_user(user)
             self.line_service.send_new_user_greeting(event.reply_token)
             return
-
-        # 名前の設定と確認メッセージ
-        user.name = text
-        self.line_service.send_name_confirmation(event.reply_token, user.name)
+        
+        # 2回目のメッセージ（名前を設定）
+        if user.name is None and user.greeted == True:
+            user.name = text  # 2回目のメッセージを名前として設定
+            self.user_service.update_user(user)
+            self.line_service.send_name_confirmation(event.reply_token, text)
+            return
