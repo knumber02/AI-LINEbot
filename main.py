@@ -5,7 +5,7 @@ from api.routes.message_routes import router as message_router
 import json
 import openai
 from pydantic import BaseModel
-from .state import User, users
+from api.state import User, users
 
 app = FastAPI()
 

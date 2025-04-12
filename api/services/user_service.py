@@ -25,6 +25,11 @@ class UserService:
 
         users[user.id] = user
         return user
+    
+    def update_user(self, user: User) -> User:
+        """ユーザーを更新します"""
+        users[user.id] = user
+        return user
 
     def update_user_personality(self, user_id: str, personality: str) -> User:
         """ユーザーの性格設定を更新します"""
