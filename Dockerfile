@@ -14,4 +14,4 @@ COPY . .
 RUN poetry install --no-root
 
 # uvicornのサーバーを立ち上げる
-CMD ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload"]
+CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--reload", "--log-level", "debug"]
