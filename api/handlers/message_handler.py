@@ -6,9 +6,9 @@ from api.services.chat_service import ChatService
 from api.state import users
 import json
 from datetime import datetime
+from config import get_config
 
-with open('/src/config.json') as f:
-    config = json.load(f)
+config = get_config()
 
 class MessageHandler:
     def __init__(self):

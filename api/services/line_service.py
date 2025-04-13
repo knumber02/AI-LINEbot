@@ -4,12 +4,12 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from api.models.user import User
 from api.models.message import Message
 from api.state import users
-import json
+from config import get_config
+
+config = get_config()
 
 class LineService:
     def __init__(self):
-        with open('/src/config.json') as f:
-            config = json.load(f)
         self.line_bot_api = LineBotApi(config["LINE_CHANNEL_ACCESS_TOKEN"])
 
     def reply_message(self, event: MessageEvent):

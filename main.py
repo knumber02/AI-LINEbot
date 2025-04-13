@@ -6,7 +6,7 @@ import json
 import openai
 from pydantic import BaseModel
 from api.state import User, users
-
+from config import load_config
 app = FastAPI()
 
 # ルーターの登録
@@ -15,8 +15,4 @@ app.include_router(user_router, prefix="/users", tags=["users"])
 app.include_router(message_router, prefix="/messages", tags=["messages"])
 
 # 設定ファイルの読み込み
-with open('/src/config.json') as f:
-    data = json.load(f)
-
-# OpenAI APIキーの設定
-openai.api_key = data['OPENAI_API_KEY']
+config = load_config()
