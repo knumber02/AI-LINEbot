@@ -6,13 +6,13 @@ from api.services.user_service import UserService
 from api.services.chat_service import ChatService
 import logging
 import json
+from config import get_config
 
+config = get_config()
 
 router = APIRouter()
 
 
-with open('/src/config.json') as f:
-    config = json.load(f)
 
 line_handler = LineHandler(LineService(), UserService(), ChatService(config["OPENAI_API_KEY"]))
 

@@ -1,7 +1,8 @@
 from typing import Dict
 from api.models.user import User
 from api.models.character import Character
-import json
+from config import get_config
+
 
 # グローバルな状態管理
 users: Dict[str, User] = {}
@@ -13,9 +14,8 @@ users['default'] = default_user
 
 def initialize_default_character():
     """デフォルトキャラクターの初期化"""
-    with open('/src/config.json') as f:
-        config = json.load(f)
-    
+    config = get_config()
+
     default_character_config = config['default_character']
     characters["default"] = Character(
         id=default_character_config["id"],

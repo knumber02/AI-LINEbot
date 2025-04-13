@@ -8,6 +8,9 @@ from api.services.user_service import UserService
 from api.services.chat_service import ChatService
 from api.models.user import User
 import json
+from config import get_config
+
+config = get_config()
 
 class LineHandler:
     def __init__(
@@ -16,9 +19,6 @@ class LineHandler:
         user_service: Annotated[UserService, Depends(UserService)],
         chat_service: Annotated[ChatService, Depends(ChatService)]
     ):
-        with open('/src/config.json') as f:
-            config = json.load(f)
-
         self.handler = WebhookHandler(config["LINE_CHANNEL_SECRET"])
         self.line_service = line_service
         self.user_service = user_service
