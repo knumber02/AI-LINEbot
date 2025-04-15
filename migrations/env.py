@@ -16,12 +16,6 @@ config = context.config
 # モデルのメタデータを設定
 target_metadata = Base.metadata
 
-# 環境変数から接続情報を取得
-load_dotenv()
-user = os.getenv("MYSQL_USER")
-password = os.getenv("MYSQL_PASSWORD")
-host = os.getenv("MYSQL_HOST")
-database = os.getenv("MYSQL_DATABASE")
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
@@ -40,7 +34,12 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    return f"mysql+mysqldb://{user}:{password}@{host}:3306/{database}"
+    load_dotenv()
+    user = os.getenv("MYSQL_USER")
+    password = os.getenv("MYSQL_PASSWORD")
+    host = os.getenv("MYSQL_HOST")
+    database = os.getenv("MYSQL_DATABASE")
+    return f"mysql+mysqldb://{user}:{password}@{host}:3306/{database}?charset=utf8mb4"
 
 
 def run_migrations_offline() -> None:
@@ -67,45 +66,27 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-# def run_migrations_online() -> None:
-#     """Run migrations in 'online' mode.
-
-#     In this scenario we need to create an Engine
-#     and associate a connection with the context.
-
-#     """
-#     configuration = dict(config.get_section(config.config_ini_section) or {})
-#     configuration["sqlalchemy.url"] = get_url()
-
-#     connectable = engine_from_config(
-#         configuration,
-#         prefix="sqlalchemy.",
-#         poolclass=pool.NullPool,
-#     )
-
-#     with connectable.connect() as connection:
-#         context.configure(
-#             connection=connection, target_metadata=target_metadata
-#         )
-
-#         with context.begin_transaction():
-#             context.run_migrations()
-
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    """Run migrations in 'online' mode."""
+    configuration = config.get_section(config.config_ini_section)
+    if configuration is None:
+        configuration = {}
+    configuration["sqlalchemy.url"] = get_url()
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    url = get_url()
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}), prefix="sqlalchemy.", poolclass=pool.NullPool, url=url
+        configuration,
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+        connect_args={
+            "charset": "utf8mb4",
+            "use_unicode": True
+        }
     )
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata
         )
 
         with context.begin_transaction():
