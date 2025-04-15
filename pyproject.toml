@@ -13,6 +13,9 @@ pydantic = "^2.0.0"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 openai = "^0.27.0"
 line-bot-sdk = "^3.5.0"
+sqlalchemy = "^2.0.0"
+alembic = "^1.13.0"
+mysqlclient = "^2.2.0"
 
 
 [build-system]
