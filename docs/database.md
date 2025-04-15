@@ -1,4 +1,4 @@
-****# Database Design
+# Database Design
 
 ## ER Diagram
 ```mermaid
