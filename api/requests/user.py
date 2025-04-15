@@ -1,29 +1,15 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from api.requests.base import RequestBase
+from api.models.user import UserBase
 
-class UserBase(BaseModel):
-    """
-    ユーザーの基本情報を表すモデルです
-    """
-    name: str = Field(
-        default=None,
-        description="ユーザーの名前"
-    )
-    personality: Optional[str] = Field(
-        default=None,
-        description="ユーザーの性格設定"
-    )
-
-class UserCreateRequest(UserBase):
+class UserCreateRequest(UserBase, RequestBase):
     """
     ユーザー作成処理のリクエストボディです
     """
-    id: str = Field(
-        ...,
-        description="ユーザーID"
-    )
+    pass
 
-class UserPersonalityUpdateRequest(BaseModel):
+class UserPersonalityUpdateRequest(RequestBase):
     """
     ユーザーの性格設定更新処理のリクエストボディです
     """
