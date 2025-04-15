@@ -1,6 +1,9 @@
 # AI Character LINE Bot
 
-デモ動画：https://youtube.com/shorts/IX3m62dwLvE?feature=share
+[デモ動画](https://youtube.com/shorts/IX3m62dwLvE?feature=share)
+
+[DB定義書](https://github.com/knumber02/AI-LINEbot/blob/master/docs/database.md)
+
 
 ## 概要 (Overview)
 このプロジェクトは、LINEプラットフォーム上で動作する対話型AIボットです。ユーザーは、キャラクターになりきったAIと雑談を通じて、ちょっとした癒しや楽しみを得ることができます。
