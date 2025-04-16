@@ -13,12 +13,15 @@ class UserHandler:
 
     def handle_create_user(self, user_request: UserCreateRequest, db: Session) -> UserResponse:
         """ユーザー作成のハンドラ"""
-        return self.service.create_user(user_request, db)
+        user = self.service.create_user(user_request, db)
+        return UserResponse.from_orm(user)
 
     def handle_get_user(self, user_id: str, db: Session) -> Optional[UserResponse]:
         """ユーザー取得のハンドラ"""
-        return self.service.get_user(user_id, db)
+        user = self.service.get_user(user_id, db)
+        return UserResponse.from_orm(user)
 
     def handle_update_personality(self, user_id: str, personality: str, db: Session) -> UserResponse:
         """ユーザーの性格設定更新のハンドラ"""
-        return self.service.update_user_personality(user_id, personality, db)
+        user = self.service.update_user_personality(user_id, personality, db)
+        return UserResponse.from_orm(user)
