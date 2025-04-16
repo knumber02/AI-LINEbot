@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
-
+from sqlalchemy import Boolean
 # SQLAlchemy Model (ORM)
 class User(Base):
     """データベースのユーザーテーブルを表現するORMモデル"""
@@ -24,8 +24,14 @@ class User(Base):
     )
     name: Mapped[str] = mapped_column(
         VARCHAR(255),
-        nullable=False,
+        nullable=True,
         comment="ユーザー名"
+    )
+    greeted: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        comment="挨拶済み"
     )
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
