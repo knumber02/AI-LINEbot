@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from sqlalchemy import TIMESTAMP, VARCHAR, Integer, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
@@ -12,10 +12,10 @@ class Character(Base):
         autoincrement=True,
         comment="キャラクターID"
     )
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[Optional[int]] = mapped_column(
         Integer,
         ForeignKey("users.id"),
-        nullable=False,
+        nullable=True,
         comment="所有ユーザーID"
     )
     name: Mapped[str] = mapped_column(
