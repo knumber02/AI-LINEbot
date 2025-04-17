@@ -1,15 +1,20 @@
 import openai
 import random
 from api.models.user import User
-from api.state import characters
-from typing import List, Dict
+from typing import List, Dict, Optional
+from api.repositories.interfaces.message_repository_interface import IMessageRepository
+from api.models.character import Character
+from sqlalchemy.orm import Session
+from api.repositories.interfaces.character_repository_interface import ICharacterRepository
 
 class ChatService:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, message_repository: IMessageRepository, character_repository: ICharacterRepository):
         openai.api_key = api_key
         self.chat_model = "gpt-3.5-turbo"
         self.inappropriate_words = ['inappropriate', 'offensive']
-        self.character = characters["default"]  # デフォルトキャラクターを取得
+        self.message_repository = message_repository
+        self._character: Optional[Character] = None
+        self.character_repository = character_repository
 
     def get_chat_response(self, user: User, message: str) -> str:
         """チャットレスポンスを取得"""
@@ -45,17 +50,34 @@ class ChatService:
             user.messages.append({"role": "assistant", "content": error_message})
             return error_message
 
-    def generate_response(self, user: User, text: str) -> str:
-        # ユーザーの名前を追加
-        text_with_name = f"{user.name}さん、{text}"
-        user.messages.append({"role": "user", "content": text_with_name})
+    def generate_response(self, user: User, text: str, db: Session) -> str:
+        # ユーザーメッセージを保存
+        character = self._get_character(db)
+        self.message_repository.create(
+            user_id=user.id,
+            character_id=character.id,
+            content=text,
+            role="user",
+            db=db
+        )
 
+        # 最近のメッセージを取得
+        recent_messages = self.message_repository.get_user_messages(user.id, 10, db)
+        
         # 会話履歴の準備
-        conversation_history = user.messages[-10:]
-        conversation_history.insert(0, {
+        conversation_history = [
+            {
+                "role": msg.role,
+                "content": msg.content
+            } for msg in recent_messages
+        ]
+
+        # システムメッセージを追加
+        system_message = {
             "role": "system",
-            "content": f"your role is to embody the following character: Age: {self.character.age}\nName: {self.character.name}\nTone: {self.character.tone}\nEnding: {self.character.ending}\nVoice: {self.character.voice}\nLanguage: {self.character.language}\nPersonality: {self.character.personality}"
-        })
+            "content": f"your role is to embody the following character: Age: {character.age}\nName: {character.name}\nTone: {character.tone}\nEnding: {character.ending}\nVoice: {character.voice}\nLanguage: {character.language}\nPersonality: {character.personality}"
+        }
+        conversation_history.insert(0, system_message)
 
         try:
             response = openai.ChatCompletion.create(
@@ -76,5 +98,16 @@ class ChatService:
             response_content = "ごめんなさい、今ちょっと眠いの... もう少し待っててくれる？"
             print(f'Error occurred: {str(e)}')
 
-        user.messages.append({"role": "assistant", "content": response_content})
+        self.message_repository.create(
+            user_id=user.id,
+            character_id=character.id,
+            content=response_content,
+            role="assistant",
+            db=db
+        )
         return response_content
+
+    def _get_character(self, db: Session) -> Character:
+        if self._character is None:
+            self._character = self.character_repository.get_default_character(db)
+        return self._character

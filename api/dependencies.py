@@ -33,8 +33,10 @@ def get_user_service(
 ) -> UserService:
     return UserService(repository)
 
-def get_line_service() -> LineService:
-    return LineService()
+def get_line_service(
+    user_service: UserService = Depends(get_user_service)
+) -> LineService:
+    return LineService(user_service)
 
 def get_chat_service(
     message_repository: IMessageRepository = Depends(get_message_repository),

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from api.models.user import User
-from api.database import engine
+from api.db import engine
 from api.requests.user import UserCreateRequest
 from typing import Optional
 from .interfaces.user_repository_interface import IUserRepository

@@ -1,32 +1,24 @@
-from linebot import LineBotApi, WebhookHandler
+from linebot import LineBotApi
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from api.models.user import User
 from api.models.message import Message
 from api.state import users
 from config import get_config
+from api.services.user_service import UserService
+from sqlalchemy.orm import Session
 
 config = get_config()
 
 class LineService:
-    def __init__(self):
+    def __init__(self, user_service: UserService):
         self.line_bot_api = LineBotApi(config["LINE_CHANNEL_ACCESS_TOKEN"])
+        self.user_service = user_service
 
-    def reply_message(self, event: MessageEvent):
-        user_id = event.source.user_id
-        user_profile = self.line_bot_api.get_profile(user_id)
-
-        if user_id not in users:
-            users[user_id] = User(
-                id=user_id,
-                name=user_profile.display_name,
-                personality="You are an assistant that speaks like a cute girlfriend."
-            )
-
-        user = users[user_id]
-        user.messages.append({"role": "user", "content": event.message.text})
-
-        # ここにAIとの対話ロジックを追加
+    def reply_message(self, event: MessageEvent, db: Session):
+        line_user_id = event.source.user_id
+        user_profile = self.line_bot_api.get_profile(line_user_id)
+        user = self.user_service.get_or_create_user(line_user_id, db)
 
         self.line_bot_api.reply_message(
             event.reply_token,
