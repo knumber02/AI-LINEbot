@@ -11,6 +11,7 @@ erDiagram
         int id PK
         string line_user_id UK
         string name
+        boolean greeted
         datetime created_at
         datetime updated_at
     }
@@ -44,15 +45,16 @@ erDiagram
 |--------|------|-------------|-------------|
 | id | BIGINT | PK, AUTO_INCREMENT | ユーザーID |
 | line_user_id | VARCHAR(255) | UNIQUE, NOT NULL | LINE User ID |
-| name | VARCHAR(255) | NOT NULL | ユーザー名 |
+| name | VARCHAR(255) | NULL | ユーザー名 |
+| greeted | boolean | NOT NULL | 挨拶済み |
 | created_at | DATETIME | NOT NULL | 作成日時 |
 | updated_at | DATETIME | NOT NULL | 更新日時 |
 
 ### Characters
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
-| id | BIGINT | PK, AUTO_INCREMENT | キャラクターID |
-| user_id | BIGINT | FK(users.id), NOT NULL | 所有ユーザーID |
+| id | INTEGER | PK, AUTO_INCREMENT | キャラクターID |
+| user_id | INTEGER | FK(users.id), NULL | 所有ユーザーID |
 | name | VARCHAR(255) | NOT NULL | キャラクター名 |
 | age | INT | NOT NULL | 年齢 |
 | tone | VARCHAR(255) | NOT NULL | 話し方 |

@@ -10,7 +10,7 @@ class UserService:
     def __init__(self, repository: IUserRepository):
         self.repository = repository
 
-    def get_or_create_user(self, line_user_id: str, db: Session) -> UserResponse:
+    def get_or_create_user(self, line_user_id: str, db: Session) -> User:
         """ユーザーを取得または作成"""
         user = self.repository.get_by_line_id(line_user_id, db)
         if user is None:
@@ -20,28 +20,25 @@ class UserService:
                 name=None
             )
             user = self.repository.create(user_data, db)
-        return UserResponse.from_orm(user)
+        return user
 
-    def get_user(self, user_id: str, db: Session) -> Optional[UserResponse]:
+    def get_user(self, user_id: str, db: Session) -> Optional[User]:
         """ユーザーを取得"""
         int_user_id = int(user_id)
         user = self.repository.get_by_id(int_user_id, db)
         if user is None:
             return None
-        return UserResponse.from_orm(user)
+        return user
 
-    def create_user(self, user_data: UserCreateRequest, db: Session) -> UserResponse:
+    def create_user(self, user_data: UserCreateRequest, db: Session) -> User:
         """ユーザーを作成"""
-        user = self.repository.create(user_data, db)
-        return UserResponse.from_orm(user)
+        return self.repository.create(user_data, db)
 
-    def update_user(self, user: User, db: Session) -> UserResponse:
+    def update_user(self, user: User, db: Session) -> User:
         """ユーザーを更新"""
-        updated_user = self.repository.update(user, db)
-        return UserResponse.from_orm(updated_user)
+        return self.repository.update(user, db)
 
-    def update_user_personality(self, user_id: str, personality: str, db: Session) -> UserResponse:
+    def update_user_personality(self, user_id: str, personality: str, db: Session) -> User:
         """ユーザーの性格設定を更新"""
         int_user_id = int(user_id)
-        user = self.repository.update_personality(int_user_id, personality, db)
-        return UserResponse.from_orm(user)
+        return self.repository.update_personality(int_user_id, personality, db)
