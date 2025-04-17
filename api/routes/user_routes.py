@@ -5,22 +5,14 @@ from api.responses.error import ErrorResponse
 from api.handlers.user_handler import UserHandler
 from typing import Annotated, List, Optional
 from sqlalchemy.orm import Session
-from api.database import get_db
+from api.db import get_db
 from api.responses.user import UserResponse
 from api.repositories.interfaces.user_repository_interface import IUserRepository
 from api.repositories.user_repository import UserRepository
 from api.services.user_service import UserService
+from api.dependencies import get_user_handler
 
 router = APIRouter()
-
-def get_repository(db: Annotated[Session, Depends(get_db)]) -> IUserRepository:
-    return UserRepository()
-
-def get_service(repository: Annotated[IUserRepository, Depends(get_repository)]) -> UserService:
-    return UserService(repository)
-
-def get_handler(service: Annotated[UserService, Depends(get_service)]) -> UserHandler:
-    return UserHandler(service)
 
 @router.post(
     "/",
@@ -33,7 +25,7 @@ def get_handler(service: Annotated[UserService, Depends(get_service)]) -> UserHa
 )
 def create_user(
     user_request: UserCreateRequest,
-    user_handler: Annotated[UserHandler, Depends(get_handler)],
+    user_handler: Annotated[UserHandler, Depends(get_user_handler)],
     db: Annotated[Session, Depends(get_db)]
 ):
     return user_handler.handle_create_user(user_request, db)
@@ -50,7 +42,7 @@ def create_user(
 )
 def get_user(
     user_id: str,
-    user_handler: Annotated[UserHandler, Depends(get_handler)],
+    user_handler: Annotated[UserHandler, Depends(get_user_handler)],
     db: Annotated[Session, Depends(get_db)]
 ):
     return user_handler.handle_get_user(user_id, db)
