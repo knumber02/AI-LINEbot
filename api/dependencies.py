@@ -13,6 +13,7 @@ from api.handlers.line_handler import LineHandler
 from api.repositories.interfaces.user_repository_interface import IUserRepository
 from api.repositories.interfaces.message_repository_interface import IMessageRepository
 from api.repositories.interfaces.character_repository_interface import ICharacterRepository
+from api.services.character_service import CharacterService
 from config import get_config
 
 config = get_config()
@@ -38,14 +39,19 @@ def get_line_service(
 ) -> LineService:
     return LineService(user_service)
 
+def get_character_service(
+    character_repository: ICharacterRepository = Depends(get_character_repository)
+) -> CharacterService:
+    return CharacterService(character_repository)
+
 def get_chat_service(
     message_repository: IMessageRepository = Depends(get_message_repository),
-    character_repository: ICharacterRepository = Depends(get_character_repository)
+    character_service: CharacterService = Depends(get_character_service)
 ) -> ChatService:
     return ChatService(
         api_key=config["OPENAI_API_KEY"],
         message_repository=message_repository,
-        character_repository=character_repository,
+        character_service=character_service,
     )
 
 # Handlers

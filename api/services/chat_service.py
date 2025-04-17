@@ -5,16 +5,16 @@ from typing import List, Dict, Optional
 from api.repositories.interfaces.message_repository_interface import IMessageRepository
 from api.models.character import Character
 from sqlalchemy.orm import Session
-from api.repositories.interfaces.character_repository_interface import ICharacterRepository
+from api.services.character_service import CharacterService
 
 class ChatService:
-    def __init__(self, api_key: str, message_repository: IMessageRepository, character_repository: ICharacterRepository):
+    def __init__(self, api_key: str, message_repository: IMessageRepository, character_service: CharacterService):
         openai.api_key = api_key
         self.chat_model = "gpt-3.5-turbo"
         self.inappropriate_words = ['inappropriate', 'offensive']
         self.message_repository = message_repository
         self._character: Optional[Character] = None
-        self.character_repository = character_repository
+        self.character_service = character_service
 
     def get_chat_response(self, user: User, message: str) -> str:
         """チャットレスポンスを取得"""
@@ -109,5 +109,5 @@ class ChatService:
 
     def _get_character(self, db: Session) -> Character:
         if self._character is None:
-            self._character = self.character_repository.get_default_character(db)
+            self._character = self.character_service.get_default_character(db)
         return self._character
