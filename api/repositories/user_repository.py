@@ -27,11 +27,3 @@ class UserRepository(IUserRepository):
         db.commit()
         db.refresh(user)
         return user
-
-    def update_personality(self, user_id: int, personality: str, db: Session) -> User:
-        """ユーザーの性格を更新する"""
-        user = self.get_by_id(user_id, db)
-        if user is None:
-            raise ValueError(f"User with id {user_id} not found")
-        user.personality = personality
-        return self.update(user, db)

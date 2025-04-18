@@ -46,21 +46,3 @@ def get_user(
     db: Annotated[Session, Depends(get_db)]
 ):
     return user_handler.handle_get_user(user_id, db)
-
-# todo: ユーザーではなく、キャラクター性格設定のAPIを作成する
-# @router.put(
-#     "/{user_id}/personality",
-#     response_model=UserResponse,
-#     responses={
-#         404: {"model": ErrorResponse},
-#         500: {"model": ErrorResponse}
-#     },
-#     description="ユーザーの性格を更新します"
-# )
-# def set_personality(
-#     user_id: str,
-#     personality_update: UserPersonalityUpdateRequest,
-#     user_handler: Annotated[UserHandler, Depends(UserHandler)],
-#     db: Annotated[Session, Depends(get_db)]
-# ):
-#     return user_handler.handle_update_personality(user_id, personality_update.personality, db)
