@@ -3,7 +3,6 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from api.models.user import User
 from api.models.message import Message
-from api.state import users
 from config import get_config
 from api.services.user_service import UserService
 from sqlalchemy.orm import Session
