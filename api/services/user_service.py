@@ -37,8 +37,3 @@ class UserService:
     def update_user(self, user: User, db: Session) -> User:
         """ユーザーを更新"""
         return self.repository.update(user, db)
-
-    def update_user_personality(self, user_id: str, personality: str, db: Session) -> User:
-        """ユーザーの性格設定を更新"""
-        int_user_id = int(user_id)
-        return self.repository.update_personality(int_user_id, personality, db)
