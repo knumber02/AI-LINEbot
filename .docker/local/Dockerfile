@@ -2,6 +2,8 @@ FROM python:3.9-slim-buster
 
 WORKDIR /app
 
+ENV PYTHONPATH=/app
+
 RUN apt-get update && apt-get install -y gcc \
     && rm -rf /var/lib/apt/lists/*
 
@@ -13,4 +15,4 @@ RUN poetry config virtualenvs.create false \
 
 COPY . .
 
-CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["poetry", "run", "uvicorn", "demo_app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app/demo_app"]

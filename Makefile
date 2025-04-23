@@ -5,7 +5,7 @@
 
 .PHONY: alembic-migrate
 migrate:
-	poetry run python -m alembic upgrade head
+	cd demo_app && poetry run python -m alembic upgrade head
 
 .PHONY: alembic-rollback
 rollback:
