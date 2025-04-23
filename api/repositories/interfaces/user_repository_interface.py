@@ -20,7 +20,3 @@ class IUserRepository(ABC):
     @abstractmethod
     def update(self, user: User, db: Session) -> User:
         pass
-
-    @abstractmethod
-    def update_personality(self, user_id: int, personality: str, db: Session) -> User:
-        pass 
