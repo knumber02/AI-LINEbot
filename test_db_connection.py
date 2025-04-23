@@ -11,7 +11,7 @@ def test_connection():
     database = os.getenv("MYSQL_DATABASE")
     port = os.getenv("MYSQL_PORT")
 
-    url = f"mysql+mysqldb://{user}:{password}@{host}:{port}/{database}"
+    url = f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
 
     try:
         engine = create_engine(
