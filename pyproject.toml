@@ -15,8 +15,8 @@ openai = "^0.27.0"
 line-bot-sdk = "^3.5.0"
 sqlalchemy = "^2.0.0"
 alembic = "^1.13.0"
-mysqlclient = "^2.2.0"
-
+mangum = "^0.17.0"
+pymysql = "^1.0.3"
 
 [build-system]
 requires = ["poetry-core"]
