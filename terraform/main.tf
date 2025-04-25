@@ -97,3 +97,52 @@ resource "aws_lambda_permission" "api_gw" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.lambda_api.execution_arn}/*/*"
 }
+
+# VPC
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "${var.app_name}-vpc"
+  }
+}
+
+# サブネット
+# Subnet1（AZ1）
+resource "aws_subnet" "db_public1" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "ap-northeast-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.app_name}-db-public-subnet-1"
+  }
+}
+
+# Subnet2（AZ2）
+resource "aws_subnet" "db_public2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "ap-northeast-1c"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.app_name}-db-public-subnet-2"
+  }
+}
+
+# RDSのサブネットグループ
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "${var.app_name}-subnet-group"
+  subnet_ids = [
+    aws_subnet.db_public1.id,
+    aws_subnet.db_public2.id
+  ]
+
+  tags = {
+    Name = "${var.app_name}-subnet-group"
+  }
+}
