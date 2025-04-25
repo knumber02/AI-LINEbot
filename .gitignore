@@ -1,7 +1,16 @@
-config.json
-.env
-__pycache__
-# Terraform state
+# Terraform
 *.tfstate
 *.tfstate.backup
 .terraform/
+
+# Lambda build artifacts
+lambda_build/
+lambda_package.zip
+requirements.txt
+
+# その他
+__pycache__/
+*.pyc
+*.pyo
+config.json
+.env
