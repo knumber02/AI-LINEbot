@@ -48,12 +48,33 @@ resource "aws_apigatewayv2_api" "lambda_api" {
   protocol_type = "HTTP"
 }
 
+# API GatewayのアクセスログをCloudWatchに保存
+resource "aws_cloudwatch_log_group" "api_gw_logs" {
+  name              = "/aws/api-gateway/${var.app_name}"
+  retention_in_days = 14  # ログ保持期間
+}
+
+# API Gatewayのステージ
 resource "aws_apigatewayv2_stage" "lambda_stage" {
   api_id      = aws_apigatewayv2_api.lambda_api.id
   name        = var.environment
   auto_deploy = true
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw_logs.arn
+    format = jsonencode({
+      requestId        = "$context.requestId",
+      ip               = "$context.identity.sourceIp",
+      requestTime      = "$context.requestTime",
+      httpMethod       = "$context.httpMethod",
+      routeKey         = "$context.routeKey",
+      status           = "$context.status",
+      protocol         = "$context.protocol",
+      responseLength   = "$context.responseLength"
+    })
+  }
 }
 
+# API GatewayのLambda関数への統合
 resource "aws_apigatewayv2_integration" "lambda_integration" {
   api_id             = aws_apigatewayv2_api.lambda_api.id
   integration_type   = "AWS_PROXY"
@@ -61,6 +82,7 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
   integration_uri    = aws_lambda_function.api_lambda.invoke_arn
 }
 
+# API Gatewayのルーティング
 resource "aws_apigatewayv2_route" "lambda_route" {
   api_id    = aws_apigatewayv2_api.lambda_api.id
   route_key = "ANY /{proxy+}"
@@ -74,4 +96,4 @@ resource "aws_lambda_permission" "api_gw" {
   function_name = aws_lambda_function.api_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.lambda_api.execution_arn}/*/*"
-} 
+}
