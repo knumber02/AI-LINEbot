@@ -25,6 +25,22 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+# Lambda関数用のセキュリティグループ
+resource "aws_security_group" "lambda_sg" {
+  name        = "${var.app_name}-lambda-sg"
+  description = "Lambda outbound access to RDS"
+  vpc_id      = aws_vpc.main.id
+
+  # Lambdaは外に出るだけなので、ingressは不要
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # Lambda関数
 resource "aws_lambda_function" "api_lambda" {
   function_name = var.app_name
@@ -38,6 +54,11 @@ resource "aws_lambda_function" "api_lambda" {
   environment {
     variables = {
       STAGE = var.environment
+      DB_HOST = var.db_host
+      DB_PORT = var.db_port
+      DB_USER = var.db_username
+      DB_PASSWORD = var.db_password
+      DB_NAME = var.db_name
     }
   }
 }
@@ -96,4 +117,122 @@ resource "aws_lambda_permission" "api_gw" {
   function_name = aws_lambda_function.api_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.lambda_api.execution_arn}/*/*"
+}
+
+# VPC
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "${var.app_name}-vpc"
+  }
+}
+
+# インターネットゲートウェイ
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.app_name}-igw"
+  }
+}
+
+# ルートテーブル
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.app_name}-private-rt"
+  }
+}
+
+
+# サブネット
+# Subnet1（AZ1）
+resource "aws_subnet" "db_private1" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "ap-northeast-1a"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.app_name}-db-private-subnet-1"
+  }
+}
+
+# Subnet2（AZ2）
+resource "aws_subnet" "db_private2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "ap-northeast-1c"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.app_name}-db-private-subnet-2"
+  }
+}
+
+
+# ルートテーブルとサブネットの関連付け
+resource "aws_route_table_association" "private1" {
+  subnet_id      = aws_subnet.db_private1.id
+  route_table_id = aws_route_table.private.id
+}
+resource "aws_route_table_association" "private2" {
+  subnet_id      = aws_subnet.db_private2.id
+  route_table_id = aws_route_table.private.id
+}
+
+# RDSのサブネットグループ
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "${var.app_name}-subnet-group"
+  subnet_ids = [
+    aws_subnet.db_private1.id,
+    aws_subnet.db_private2.id
+  ]
+
+  tags = {
+    Name = "${var.app_name}-subnet-group"
+  }
+}
+
+
+# RDSのインスタンス
+resource "aws_db_instance" "rds_instance" {
+  identifier              = "${var.app_name}-db"
+  engine                  = "mysql"
+  engine_version          = "8.0"
+  instance_class          = "db.t3.micro"  # 最小スペック
+  allocated_storage       = 20             # 20GB
+  username                = var.db_username
+  password                = var.db_password
+  db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
+  publicly_accessible     = false            # 外部接続を許可しない
+  skip_final_snapshot     = true            # 削除時スナップショット不要
+  deletion_protection     = false
+  vpc_security_group_ids  = [aws_security_group.rds_sg.id] # セキュリティグループ設定
+}
+
+# RDSのセキュリティグループ
+resource "aws_security_group" "rds_sg" {
+  name        = "${var.app_name}-rds-sg"
+  description = "Allow MySQL inbound traffic from Lambda only"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda_sg.id] # LambdaのSGからのみ許可
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
 }

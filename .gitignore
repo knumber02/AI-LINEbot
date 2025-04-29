@@ -7,6 +7,7 @@
 lambda_build/
 lambda_package.zip
 requirements.txt
+terraform/variables.tf
 
 # その他
 __pycache__/
