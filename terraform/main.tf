@@ -140,61 +140,57 @@ resource "aws_internet_gateway" "main" {
 }
 
 # ルートテーブル
-resource "aws_route_table" "public" {
+resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
-
   tags = {
-    Name = "${var.app_name}-public-rt"
+    Name = "${var.app_name}-private-rt"
   }
 }
 
 
 # サブネット
 # Subnet1（AZ1）
-resource "aws_subnet" "db_public1" {
+resource "aws_subnet" "db_private1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "ap-northeast-1a"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
-    Name = "${var.app_name}-db-public-subnet-1"
+    Name = "${var.app_name}-db-private-subnet-1"
   }
 }
 
 # Subnet2（AZ2）
-resource "aws_subnet" "db_public2" {
+resource "aws_subnet" "db_private2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
   availability_zone       = "ap-northeast-1c"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
-    Name = "${var.app_name}-db-public-subnet-2"
+    Name = "${var.app_name}-db-private-subnet-2"
   }
 }
 
+
 # ルートテーブルとサブネットの関連付け
-resource "aws_route_table_association" "public1" {
-  subnet_id      = aws_subnet.db_public1.id
-  route_table_id = aws_route_table.public.id
+resource "aws_route_table_association" "private1" {
+  subnet_id      = aws_subnet.db_private1.id
+  route_table_id = aws_route_table.private.id
 }
-resource "aws_route_table_association" "public2" {
-  subnet_id      = aws_subnet.db_public2.id
-  route_table_id = aws_route_table.public.id
+resource "aws_route_table_association" "private2" {
+  subnet_id      = aws_subnet.db_private2.id
+  route_table_id = aws_route_table.private.id
 }
 
 # RDSのサブネットグループ
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name       = "${var.app_name}-subnet-group"
   subnet_ids = [
-    aws_subnet.db_public1.id,
-    aws_subnet.db_public2.id
+    aws_subnet.db_private1.id,
+    aws_subnet.db_private2.id
   ]
 
   tags = {
@@ -213,7 +209,7 @@ resource "aws_db_instance" "rds_instance" {
   username                = var.db_username
   password                = var.db_password
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
-  publicly_accessible     = true            # 外部接続を許可
+  publicly_accessible     = false            # 外部接続を許可しない
   skip_final_snapshot     = true            # 削除時スナップショット不要
   deletion_protection     = false
   vpc_security_group_ids  = [aws_security_group.rds_sg.id] # セキュリティグループ設定
