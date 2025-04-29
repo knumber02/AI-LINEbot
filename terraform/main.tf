@@ -25,6 +25,22 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+# Lambda関数用のセキュリティグループ
+resource "aws_security_group" "lambda_sg" {
+  name        = "${var.app_name}-lambda-sg"
+  description = "Lambda outbound access to RDS"
+  vpc_id      = aws_vpc.main.id
+
+  # Lambdaは外に出るだけなので、ingressは不要
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # Lambda関数
 resource "aws_lambda_function" "api_lambda" {
   function_name = var.app_name
@@ -206,14 +222,14 @@ resource "aws_db_instance" "rds_instance" {
 # RDSのセキュリティグループ
 resource "aws_security_group" "rds_sg" {
   name        = "${var.app_name}-rds-sg"
-  description = "Allow MySQL inbound traffic"
+  description = "Allow MySQL inbound traffic from Lambda only"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # あとで絞る
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda_sg.id] # LambdaのSGからのみ許可
   }
 
   egress {
@@ -222,4 +238,5 @@ resource "aws_security_group" "rds_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
 }
