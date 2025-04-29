@@ -185,3 +185,41 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
     Name = "${var.app_name}-subnet-group"
   }
 }
+
+
+# RDSのインスタンス
+resource "aws_db_instance" "rds_instance" {
+  identifier              = "${var.app_name}-db"
+  engine                  = "mysql"
+  engine_version          = "8.0"
+  instance_class          = "db.t3.micro"  # 最小スペック
+  allocated_storage       = 20             # 20GB
+  username                = var.db_username
+  password                = var.db_password
+  db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
+  publicly_accessible     = true            # 外部接続を許可
+  skip_final_snapshot     = true            # 削除時スナップショット不要
+  deletion_protection     = false
+  vpc_security_group_ids  = [aws_security_group.rds_sg.id] # セキュリティグループ設定
+}
+
+# RDSのセキュリティグループ
+resource "aws_security_group" "rds_sg" {
+  name        = "${var.app_name}-rds-sg"
+  description = "Allow MySQL inbound traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # あとで絞る
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
